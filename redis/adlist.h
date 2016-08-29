@@ -47,14 +47,20 @@ typedef struct listIter {
 /* Prototypes */
 list *listCreate(void);
 void listRelease(list *list);
+
 list *listAddNodeHead(list *list, void *value);
 list *listAddNodeTail(list *list, void *value);
+
 void listDelNode(list *list, listNode *node);
+
 listIter *listGetIterator(list *list, int direction);
 listNode *listNextElement(listIter *iter);
 void listReleaseIterator(listIter *iter);
+
 list *listDup(list *orig);
+
 listNode *listSearchKey(list *list, void *key);
+
 listNode *listIndex(list *list, int index);
 
 /* Directions for iterators */

@@ -92,17 +92,17 @@ static void _dictReset(dict *ht)
 
 /* Create a new hash table */
 dict *dictCreate(dictType *type,
-        void *privDataPtr)
+                 void *privDataPtr)
 {
     dict *ht = _dictAlloc(sizeof(*ht));
 
-    _dictInit(ht,type,privDataPtr);
+    _dictInit(ht, type, privDataPtr);
     return ht;
 }
 
 /* Initialize the hash table */
 int _dictInit(dict *ht, dictType *type,
-        void *privDataPtr)
+              void *privDataPtr)
 {
     _dictReset(ht);
     ht->type = type;
@@ -134,11 +134,11 @@ int dictExpand(dict *ht, unsigned int size)
 
     _dictInit(&n, ht->type, ht->privdata);
     n.size = realsize;
-    n.sizemask = realsize-1;
-    n.table = _dictAlloc(realsize*sizeof(dictEntry*));
+    n.sizemask = realsize - 1;
+    n.table = _dictAlloc(realsize * sizeof(dictEntry*));
 
     /* Initialize all the pointers to NULL */
-    memset(n.table, 0, realsize*sizeof(dictEntry*));
+    memset(n.table, 0, realsize * sizeof(dictEntry*));
 
     /* Copy all the elements from the old to the new table:
      * note that if the old hash table is empty ht->size is zero,
@@ -148,10 +148,10 @@ int dictExpand(dict *ht, unsigned int size)
         dictEntry *he, *nextHe;
 
         if (ht->table[i] == NULL) continue;
-        
+
         /* For each hash entry on this slot... */
         he = ht->table[i];
-        while(he) {
+        while (he) {
             unsigned int h;
 
             nextHe = he->next;
@@ -224,7 +224,7 @@ static int dictGenericDelete(dict *ht, const void *key, int nofree)
     he = ht->table[h];
 
     prevHe = NULL;
-    while(he) {
+    while (he) {
         if (dictCompareHashKeys(ht, key, he->key)) {
             /* Unlink the element from the list */
             if (prevHe)
@@ -246,11 +246,11 @@ static int dictGenericDelete(dict *ht, const void *key, int nofree)
 }
 
 int dictDelete(dict *ht, const void *key) {
-    return dictGenericDelete(ht,key,0);
+    return dictGenericDelete(ht, key, 0);
 }
 
 int dictDeleteNoFree(dict *ht, const void *key) {
-    return dictGenericDelete(ht,key,1);
+    return dictGenericDelete(ht, key, 1);
 }
 
 /* Destroy an entire hash table */
@@ -263,7 +263,7 @@ int _dictClear(dict *ht)
         dictEntry *he, *nextHe;
 
         if ((he = ht->table[i]) == NULL) continue;
-        while(he) {
+        while (he) {
             nextHe = he->next;
             dictFreeEntryKey(ht, he);
             dictFreeEntryVal(ht, he);
@@ -294,7 +294,7 @@ dictEntry *dictFind(dict *ht, const void *key)
     if (ht->size == 0) return NULL;
     h = dictHashKey(ht, key) & ht->sizemask;
     he = ht->table[h];
-    while(he) {
+    while (he) {
         if (dictCompareHashKeys(ht, key, he->key))
             return he;
         he = he->next;
@@ -351,20 +351,20 @@ dictEntry *dictGetRandomKey(dict *ht)
     do {
         h = random() & ht->sizemask;
         he = ht->table[h];
-    } while(he == NULL);
+    } while (he == NULL);
 
     /* Now we found a non empty bucket, but it is a linked
      * list and we need to get a random element from the list.
      * The only sane way to do so is to count the element and
      * select a random index. */
     listlen = 0;
-    while(he) {
+    while (he) {
         he = he->next;
         listlen++;
     }
     listele = random() % listlen;
     he = ht->table[h];
-    while(listele--) he = he->next;
+    while (listele--) he = he->next;
     return he;
 }
 
@@ -378,7 +378,7 @@ static int _dictExpandIfNeeded(dict *ht)
     if (ht->size == 0)
         return dictExpand(ht, DICT_HT_INITIAL_SIZE);
     if (ht->used == ht->size)
-        return dictExpand(ht, ht->size*2);
+        return dictExpand(ht, ht->size * 2);
     return DICT_OK;
 }
 
@@ -389,7 +389,7 @@ static unsigned int _dictNextPower(unsigned int size)
 
     if (size >= 2147483648U)
         return 2147483648U;
-    while(1) {
+    while (1) {
         if (i >= size)
             return i;
         i *= 2;
@@ -411,7 +411,7 @@ static int _dictKeyIndex(dict *ht, const void *key)
     h = dictHashKey(ht, key) & ht->sizemask;
     /* Search if this slot does not already contain the given key */
     he = ht->table[h];
-    while(he) {
+    while (he) {
         if (dictCompareHashKeys(ht, key, he->key))
             return -1;
         he = he->next;
@@ -442,11 +442,11 @@ void dictPrintStats(dict *ht) {
         /* For each hash entry on this slot... */
         chainlen = 0;
         he = ht->table[i];
-        while(he) {
+        while (he) {
             chainlen++;
             he = he->next;
         }
-        clvector[(chainlen < DICT_STATS_VECTLEN) ? chainlen : (DICT_STATS_VECTLEN-1)]++;
+        clvector[(chainlen < DICT_STATS_VECTLEN) ? chainlen : (DICT_STATS_VECTLEN - 1)]++;
         if (chainlen > maxchainlen) maxchainlen = chainlen;
         totchainlen += chainlen;
     }
@@ -455,12 +455,12 @@ void dictPrintStats(dict *ht) {
     printf(" number of elements: %d\n", ht->used);
     printf(" different slots: %d\n", slots);
     printf(" max chain length: %d\n", maxchainlen);
-    printf(" avg chain length (counted): %.02f\n", (float)totchainlen/slots);
-    printf(" avg chain length (computed): %.02f\n", (float)ht->used/slots);
+    printf(" avg chain length (counted): %.02f\n", (float)totchainlen / slots);
+    printf(" avg chain length (computed): %.02f\n", (float)ht->used / slots);
     printf(" Chain length distribution:\n");
-    for (i = 0; i < DICT_STATS_VECTLEN-1; i++) {
+    for (i = 0; i < DICT_STATS_VECTLEN - 1; i++) {
         if (clvector[i] == 0) continue;
-        printf("   %s%d: %d (%.02f%%)\n",(i == DICT_STATS_VECTLEN-1)?">= ":"", i, clvector[i], ((float)clvector[i]/ht->size)*100);
+        printf("   %s%d: %d (%.02f%%)\n", (i == DICT_STATS_VECTLEN - 1) ? ">= " : "", i, clvector[i], ((float)clvector[i] / ht->size) * 100);
     }
 }
 
@@ -474,7 +474,7 @@ static unsigned int _dictStringCopyHTHashFunction(const void *key)
 static void *_dictStringCopyHTKeyDup(void *privdata, const void *key)
 {
     int len = strlen(key);
-    char *copy = _dictAlloc(len+1);
+    char *copy = _dictAlloc(len + 1);
     DICT_NOTUSED(privdata);
 
     memcpy(copy, key, len);
@@ -485,7 +485,7 @@ static void *_dictStringCopyHTKeyDup(void *privdata, const void *key)
 static void *_dictStringKeyValCopyHTValDup(void *privdata, const void *val)
 {
     int len = strlen(val);
-    char *copy = _dictAlloc(len+1);
+    char *copy = _dictAlloc(len + 1);
     DICT_NOTUSED(privdata);
 
     memcpy(copy, val, len);
@@ -494,7 +494,7 @@ static void *_dictStringKeyValCopyHTValDup(void *privdata, const void *val)
 }
 
 static int _dictStringCopyHTKeyCompare(void *privdata, const void *key1,
-        const void *key2)
+                                       const void *key2)
 {
     DICT_NOTUSED(privdata);
 

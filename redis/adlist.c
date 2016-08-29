@@ -15,7 +15,8 @@ list *listCreate(void)
     struct list *list;
 
     if ((list = malloc(sizeof(*list))) == NULL)
-        return NULL;
+        return NULL; /* 这个地方是否需要把错误返回到上一级 */
+
     list->head = list->tail = NULL;
     list->len = 0;
     list->dup = NULL;
@@ -55,6 +56,7 @@ list *listAddNodeHead(list *list, void *value)
 
     if ((node = malloc(sizeof(*node))) == NULL)
         return NULL;
+
     node->value = value;
     if (list->len == 0) {
         list->head = list->tail = node;
@@ -105,12 +107,15 @@ void listDelNode(list *list, listNode *node)
         node->prev->next = node->next;
     else
         list->head = node->next;
+
     if (node->next)
         node->next->prev = node->prev;
     else
         list->tail = node->prev;
+
     if (list->free) list->free(node->value);
     free(node);
+
     list->len--;
 }
 
@@ -122,11 +127,14 @@ listIter *listGetIterator(list *list, int direction)
 {
     listIter *iter;
     
-    if ((iter = malloc(sizeof(*iter))) == NULL) return NULL;
+    if ((iter = malloc(sizeof(*iter))) == NULL) 
+        return NULL;
+
     if (direction == AL_START_HEAD)
         iter->next = list->head;
     else
         iter->next = list->tail;
+
     iter->direction = direction;
     return iter;
 }
@@ -160,6 +168,7 @@ listNode *listNextElement(listIter *iter)
         else
             iter->next = current->prev;
     }
+    
     return current;
 }
 
