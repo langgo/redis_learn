@@ -118,6 +118,7 @@ int dictResize(dict *ht)
 
     if (minimal < DICT_HT_INITIAL_SIZE)
         minimal = DICT_HT_INITIAL_SIZE;
+
     return dictExpand(ht, minimal);
 }
 
@@ -185,13 +186,14 @@ int dictAdd(dict *ht, void *key, void *val)
 
     /* Allocates the memory and stores key */
     entry = _dictAlloc(sizeof(*entry));
-    entry->next = ht->table[index];
+    entry->next = ht->table[index];  /* 插在链表的头部 */
     ht->table[index] = entry;
 
     /* Set the hash entry fields. */
     dictSetHashKey(ht, entry, key);
     dictSetHashVal(ht, entry, val);
     ht->used++;
+
     return DICT_OK;
 }
 
@@ -204,6 +206,7 @@ int dictReplace(dict *ht, void *key, void *val)
      * does not exists dictAdd will suceed. */
     if (dictAdd(ht, key, val) == DICT_OK)
         return DICT_OK;
+
     /* It already exists, get the entry */
     entry = dictFind(ht, key);
     /* Free the old value and set the new one */
@@ -377,8 +380,10 @@ static int _dictExpandIfNeeded(dict *ht)
      * if the table is "full" dobule its size. */
     if (ht->size == 0)
         return dictExpand(ht, DICT_HT_INITIAL_SIZE);
+
     if (ht->used == ht->size)
         return dictExpand(ht, ht->size * 2);
+
     return DICT_OK;
 }
 
@@ -407,8 +412,10 @@ static int _dictKeyIndex(dict *ht, const void *key)
     /* Expand the hashtable if needed */
     if (_dictExpandIfNeeded(ht) == DICT_ERR)
         return -1;
+
     /* Compute the key hash value */
     h = dictHashKey(ht, key) & ht->sizemask;
+
     /* Search if this slot does not already contain the given key */
     he = ht->table[h];
     while (he) {
@@ -516,32 +523,32 @@ static void _dictStringKeyValCopyHTValDestructor(void *privdata, void *val)
 }
 
 dictType dictTypeHeapStringCopyKey = {
-    _dictStringCopyHTHashFunction,        /* hash function */
-    _dictStringCopyHTKeyDup,              /* key dup */
-    NULL,                               /* val dup */
-    _dictStringCopyHTKeyCompare,          /* key compare */
-    _dictStringCopyHTKeyDestructor,       /* key destructor */
-    NULL                                /* val destructor */
+    _dictStringCopyHTHashFunction,          /* hash function */
+    _dictStringCopyHTKeyDup,                /* key dup */
+    NULL,                                   /* val dup */
+    _dictStringCopyHTKeyCompare,            /* key compare */
+    _dictStringCopyHTKeyDestructor,         /* key destructor */
+    NULL                                    /* val destructor */
 };
 
 /* This is like StringCopy but does not auto-duplicate the key.
  * It's used for intepreter's shared strings. */
 dictType dictTypeHeapStrings = {
-    _dictStringCopyHTHashFunction,        /* hash function */
-    NULL,                               /* key dup */
-    NULL,                               /* val dup */
-    _dictStringCopyHTKeyCompare,          /* key compare */
-    _dictStringCopyHTKeyDestructor,       /* key destructor */
-    NULL                                /* val destructor */
+    _dictStringCopyHTHashFunction,          /* hash function */
+    NULL,                                   /* key dup */
+    NULL,                                   /* val dup */
+    _dictStringCopyHTKeyCompare,            /* key compare */
+    _dictStringCopyHTKeyDestructor,         /* key destructor */
+    NULL                                    /* val destructor */
 };
 
 /* This is like StringCopy but also automatically handle dynamic
  * allocated C strings as values. */
 dictType dictTypeHeapStringCopyKeyValue = {
-    _dictStringCopyHTHashFunction,        /* hash function */
-    _dictStringCopyHTKeyDup,              /* key dup */
-    _dictStringKeyValCopyHTValDup,        /* val dup */
-    _dictStringCopyHTKeyCompare,          /* key compare */
-    _dictStringCopyHTKeyDestructor,       /* key destructor */
-    _dictStringKeyValCopyHTValDestructor, /* val destructor */
+    _dictStringCopyHTHashFunction,          /* hash function */
+    _dictStringCopyHTKeyDup,                /* key dup */
+    _dictStringKeyValCopyHTValDup,          /* val dup */
+    _dictStringCopyHTKeyCompare,            /* key compare */
+    _dictStringCopyHTKeyDestructor,         /* key destructor */
+    _dictStringKeyValCopyHTValDestructor,   /* val destructor */
 };

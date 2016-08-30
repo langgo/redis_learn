@@ -90,7 +90,7 @@ int anetResolve(char *err, char *host, char *ipbuf)
         }
         memcpy(&sa.sin_addr, he->h_addr, sizeof(struct in_addr));
     }
-    strcpy(ipbuf,inet_ntoa(sa.sin_addr));
+    strcpy(ipbuf, inet_ntoa(sa.sin_addr));
     return ANET_OK;
 }
 
@@ -103,6 +103,7 @@ int anetTcpConnect(char *err, char *addr, int port)
         anetSetError(err, "creating socket: %s\n", strerror(errno));
         return ANET_ERR;
     }
+
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
     if (inet_aton(addr, &sa.sin_addr) == 0) {
@@ -116,11 +117,13 @@ int anetTcpConnect(char *err, char *addr, int port)
         }
         memcpy(&sa.sin_addr, he->h_addr, sizeof(struct in_addr));
     }
+
     if (connect(s, (struct sockaddr*)&sa, sizeof(sa)) == -1) {
         anetSetError(err, "connect: %s\n", strerror(errno));
         close(s);
         return ANET_ERR;
     }
+
     return s;
 }
 
@@ -129,8 +132,8 @@ int anetTcpConnect(char *err, char *addr, int port)
 int anetRead(int fd, void *buf, int count)
 {
     int nread, totlen = 0;
-    while(totlen != count) {
-        nread = read(fd,buf,count-totlen);
+    while (totlen != count) {
+        nread = read(fd, buf, count - totlen);
         if (nread == 0) return totlen;
         if (nread == -1) return -1;
         totlen += nread;
@@ -144,8 +147,8 @@ int anetRead(int fd, void *buf, int count)
 int anetWrite(int fd, void *buf, int count)
 {
     int nwritten, totlen = 0;
-    while(totlen != count) {
-        nwritten = write(fd,buf,count-totlen);
+    while (totlen != count) {
+        nwritten = write(fd, buf, count - totlen);
         if (nwritten == 0) return totlen;
         if (nwritten == -1) return -1;
         totlen += nwritten;
@@ -158,7 +161,7 @@ int anetTcpServer(char *err, int port, char *bindaddr)
 {
     int s, on = 1;
     struct sockaddr_in sa;
-    
+
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         anetSetError(err, "socket: %s\n", strerror(errno));
         return ANET_ERR;
@@ -192,7 +195,7 @@ int anetAccept(char *err, int serversock, char *ip, int *port)
     struct sockaddr_in sa;
     unsigned int saLen;
 
-    while(1) {
+    while (1) {
         saLen = sizeof(sa);
         fd = accept(serversock, (struct sockaddr*)&sa, &saLen);
         if (fd == -1) {
@@ -205,7 +208,7 @@ int anetAccept(char *err, int serversock, char *ip, int *port)
         }
         break;
     }
-    if (ip) strcpy(ip,inet_ntoa(sa.sin_addr));
+    if (ip) strcpy(ip, inet_ntoa(sa.sin_addr));
     if (port) *port = ntohs(sa.sin_port);
     return fd;
 }

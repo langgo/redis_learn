@@ -188,9 +188,11 @@ list *listDup(list *orig)
 
     if ((copy = listCreate()) == NULL)
         return NULL;
+
     copy->dup = orig->dup;
     copy->free = orig->free;
     copy->match = orig->match;
+
     iter = listGetIterator(orig, AL_START_HEAD);
     while((node = listNextElement(iter)) != NULL) {
         void *value;
@@ -204,6 +206,7 @@ list *listDup(list *orig)
             }
         } else
             value = node->value;
+
         if (listAddNodeTail(copy, value) == NULL) {
             listRelease(copy);
             listReleaseIterator(iter);
@@ -211,6 +214,7 @@ list *listDup(list *orig)
         }
     }
     listReleaseIterator(iter);
+
     return copy;
 }
 
@@ -243,6 +247,7 @@ listNode *listSearchKey(list *list, void *key)
         }
     }
     listReleaseIterator(iter);
+    
     return NULL;
 }
 

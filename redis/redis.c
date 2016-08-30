@@ -1784,11 +1784,15 @@ int main(int argc, char **argv) {
         fprintf(stderr,"Usage: ./redis-server [/path/to/redis.conf]\n");
         exit(1);
     }
+
     redisLog(REDIS_NOTICE,"Server started");
+
     if (loadDb("dump.rdb") == REDIS_OK)
         redisLog(REDIS_NOTICE,"DB loaded from disk");
+
     if (aeCreateFileEvent(server.el, server.fd, AE_READABLE,
         acceptHandler, NULL, NULL) == AE_ERR) oom("creating file event");
+        
     redisLog(REDIS_NOTICE,"The server is now ready to accept connections");
     aeMain(server.el);
     aeDeleteEventLoop(server.el);

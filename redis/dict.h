@@ -47,26 +47,26 @@ typedef struct dictIterator {
 #define DICT_HT_INITIAL_SIZE     16
 
 /* ------------------------------- Macros ------------------------------------*/
-#define dictFreeEntryVal(ht, entry) \
-    if ((ht)->type->valDestructor) \
-        (ht)->type->valDestructor((ht)->privdata, (entry)->val)
-
-#define dictSetHashVal(ht, entry, _val_) do { \
-    if ((ht)->type->valDup) \
-        entry->val = (ht)->type->valDup((ht)->privdata, _val_); \
-    else \
-        entry->val = (_val_); \
-} while(0)
-
 #define dictFreeEntryKey(ht, entry) \
     if ((ht)->type->keyDestructor) \
         (ht)->type->keyDestructor((ht)->privdata, (entry)->key)
+
+#define dictFreeEntryVal(ht, entry) \
+    if ((ht)->type->valDestructor) \
+        (ht)->type->valDestructor((ht)->privdata, (entry)->val)
 
 #define dictSetHashKey(ht, entry, _key_) do { \
     if ((ht)->type->keyDup) \
         entry->key = (ht)->type->keyDup((ht)->privdata, _key_); \
     else \
         entry->key = (_key_); \
+} while(0)
+
+#define dictSetHashVal(ht, entry, _val_) do { \
+    if ((ht)->type->valDup) \
+        entry->val = (ht)->type->valDup((ht)->privdata, _val_); \
+    else \
+        entry->val = (_val_); \
 } while(0)
 
 #define dictCompareHashKeys(ht, key1, key2) \
@@ -84,18 +84,25 @@ typedef struct dictIterator {
 /* API */
 dict *dictCreate(dictType *type, void *privDataPtr);
 int dictExpand(dict *ht, unsigned int size);
+void dictRelease(dict *ht);
+int dictResize(dict *ht);
+
+
 int dictAdd(dict *ht, void *key, void *val);
 int dictReplace(dict *ht, void *key, void *val);
 int dictDelete(dict *ht, const void *key);
 int dictDeleteNoFree(dict *ht, const void *key);
-void dictRelease(dict *ht);
+
 dictEntry * dictFind(dict *ht, const void *key);
-int dictResize(dict *ht);
+
 dictIterator *dictGetIterator(dict *ht);
 dictEntry *dictNext(dictIterator *iter);
 void dictReleaseIterator(dictIterator *iter);
+
 dictEntry *dictGetRandomKey(dict *ht);
+
 void dictPrintStats(dict *ht);
+
 unsigned int dictGenHashFunction(const unsigned char *buf, int len);
 
 /* Hash table types */
