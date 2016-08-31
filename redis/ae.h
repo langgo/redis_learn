@@ -11,22 +11,22 @@ typedef void aeEventFinalizerProc(struct aeEventLoop *eventLoop, void *clientDat
 /* File event structure */
 typedef struct aeFileEvent {
     int fd;
-    int mask; /* one of AE_(READABLE|WRITABLE|EXCEPTION) */
+    int mask;       /* one of AE_(READABLE|WRITABLE|EXCEPTION) */
     aeFileProc *fileProc;
     aeEventFinalizerProc *finalizerProc;
     void *clientData;
-    struct aeFileEvent *next;
+    struct aeFileEvent *next; /* 链表 */
 } aeFileEvent;
 
 /* Time event structure */
 typedef struct aeTimeEvent {
-    long long id; /* time event identifier. */
-    long when_sec; /* seconds */
-    long when_ms; /* milliseconds */
+    long long id;   /* time event identifier. */
+    long when_sec;  /* seconds */
+    long when_ms;   /* milliseconds */
     aeTimeProc *timeProc;
     aeEventFinalizerProc *finalizerProc;
     void *clientData;
-    struct aeTimeEvent *next;
+    struct aeTimeEvent *next; /* 链表 */
 } aeTimeEvent;
 
 /* State of an event based program */
@@ -38,17 +38,17 @@ typedef struct aeEventLoop {
 } aeEventLoop;
 
 /* Defines */
-#define AE_OK 0
+#define AE_OK   0
 #define AE_ERR -1
 
-#define AE_READABLE 1
-#define AE_WRITABLE 2
-#define AE_EXCEPTION 4
+#define AE_READABLE  1 /* 可读 */
+#define AE_WRITABLE  2 /* 可写 */
+#define AE_EXCEPTION 4 /* 异常 */
 
 #define AE_FILE_EVENTS 1
 #define AE_TIME_EVENTS 2
-#define AE_ALL_EVENTS (AE_FILE_EVENTS|AE_TIME_EVENTS)
-#define AE_DONT_WAIT 4
+#define AE_ALL_EVENTS  (AE_FILE_EVENTS|AE_TIME_EVENTS)
+#define AE_DONT_WAIT   4
 
 #define AE_NOMORE -1
 
@@ -60,14 +60,15 @@ aeEventLoop *aeCreateEventLoop(void);
 void aeDeleteEventLoop(aeEventLoop *eventLoop);
 void aeStop(aeEventLoop *eventLoop);
 int aeCreateFileEvent(aeEventLoop *eventLoop, int fd, int mask,
-        aeFileProc *proc, void *clientData,
-        aeEventFinalizerProc *finalizerProc);
+                      aeFileProc *proc, void *clientData,
+                      aeEventFinalizerProc *finalizerProc);
 void aeDeleteFileEvent(aeEventLoop *eventLoop, int fd, int mask);
 long long aeCreateTimeEvent(aeEventLoop *eventLoop, long long milliseconds,
-        aeTimeProc *proc, void *clientData,
-        aeEventFinalizerProc *finalizerProc);
+                            aeTimeProc *proc, void *clientData,
+                            aeEventFinalizerProc *finalizerProc);
 int aeDeleteTimeEvent(aeEventLoop *eventLoop, long long id);
 int aeProcessEvents(aeEventLoop *eventLoop, int flags);
+
 void aeMain(aeEventLoop *eventLoop);
 
 #endif
